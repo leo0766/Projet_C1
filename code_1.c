@@ -30,10 +30,38 @@ for (int i = 1; i < t; i++) {
 	dIt[i] = betta * St[i] * It[i] -(It[i] / lambda);
 	dRt[i] = It[i] / lambda;
 	
-	printf("%f\n", St[i]);
+	printf("%f,\n", St[i]);
 	}
 	
+	printf("\n");
+	printf("\n");
 	
+for (int i = 1; i < t; i++) {
+	
+	St[i] = St[i - 1] + dSt[i - 1];
+	It[i] = It[i - 1] + dIt[i - 1];
+	Rt[i] = Rt[i - 1] + dRt[i - 1];
+	dSt[i] = -betta * St[i] * It[i];
+	dIt[i] = betta * St[i] * It[i] -(It[i] / lambda);
+	dRt[i] = It[i] / lambda;
+	
+	printf("%f,\n", It[i]);
+	}
+	
+	printf("\n");
+	printf("\n");
+	
+for (int i = 1; i < t; i++) {
+	
+	St[i] = St[i - 1] + dSt[i - 1];
+	It[i] = It[i - 1] + dIt[i - 1];
+	Rt[i] = Rt[i - 1] + dRt[i - 1];
+	dSt[i] = -betta * St[i] * It[i];
+	dIt[i] = betta * St[i] * It[i] -(It[i] / lambda);
+	dRt[i] = It[i] / lambda;
+	
+	printf("%f,\n", Rt[i]);
+	}
 }
 
 
