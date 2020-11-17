@@ -30,11 +30,9 @@ It[0] = I0;
 Rt[0] = R0;
 Ct[0] = C0;
 Mt[0] = M0;
+betta[0] = betta0;
+dbetta[0] = 0;
 
-for(int k = 0; k < 5; k++){
-	betta[k] = betta0;
-	
-}
 
 
 
@@ -46,24 +44,34 @@ for (int i = 1; i < t; i++) {
 	Ct[i] = Ct[i - 1] + dCt[i - 1];
 	Mt[i] = Mt[i - 1] + dMt[i - 1];
 	
-	betta[i + 4] = betta[i + 3] + dbetta[i + 3];
+	betta[i] = betta[i - 1] + dbetta[i - 1];
 	
 	
 	
-	dSt[i] = -betta[i + 4] * (It[i] + Ct[i]) * St[i];
-	dCt[i] = betta[i + 4] *  (It[i]+Ct[i]) * St[i] - Ct[i] / v;
+	dSt[i] = -betta[i] * (It[i] + Ct[i]) * St[i];
+	dCt[i] = betta[i] *  (It[i]+Ct[i]) * St[i] - Ct[i] / v;
 	dIt[i] = Ct[i] / v - (It[i] / lambda) - It[i] * mu;
 	dRt[i] = It[i] / lambda;
 	dMt[i] = It[i] * mu;	
 	
 	
-	if(i < 3) {
-		dbetta[i + 4] = (Ct[i] + It[i]) * St[i]/100;
+	if(i < 2) {
+		dbetta[i] = (Ct[i] + It[i]) * St[i]/100;
 	}
 	else {
-		dbetta[i + 4] =  ((dbetta[i+3] - dbetta[i+2])/(fabs(dbetta[i+3] - dbetta[i+2]))) * (Ct[i] + It[i]) * St[i]/100;
+		dbetta[i] =  ((dbetta[i - 1] - dbetta[i - 2])/(fabs(dbetta[i - 1] - dbetta[i - 2]))) * (Ct[i] + It[i]) * St[i]/100;
 		}
 	}
+	
+	
+		
+	
+
+
+
+
+
+
 
 	printf("\n");
 
@@ -144,7 +152,7 @@ for(int i = 0; i < t; i++) {
 	printf("\n");
 	printf("\n");
 	
-for (int i = 1; i < t+3; i++) {
+for (int i = 0; i < t; i++) {
 	
 	
 	printf("%f\n", betta[i]);
@@ -153,7 +161,7 @@ for (int i = 1; i < t+3; i++) {
 	printf("\n");
 	printf("\n");
  
-for (int i = 1; i < t+3; i++) {
+for (int i = -1; i < t; i++) {
 	
 	
 	printf("%f\n", dIt[i]);
