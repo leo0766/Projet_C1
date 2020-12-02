@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+  <meta charset="utf-8">
+  <title>Simulation Virus</title>
+  <style>
+		body { background: #eee; font-family: sans-serif; font-size: 18px; margin: 0; padding: 0 }
+		h1 { font-size: 30px }
+		table.parameters td { padding: 2px }
+		table.parameters td:first-child { font-weight: bold; padding-right: 10px }
+		table.parameters td input { background: white; border: 1px solid #aaa; font-family: sans-serif; font-size: 18px; padding: 1px; width: 100px }
+		div.button { background: #06c; border-radius: 4px; color: white; cursor: pointer; display: inline-block; padding: 10px 20px }
+		div.panel { background: white; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); margin: 20px auto; max-width: 800px; padding: 20px }
+		pre#result { font-size: 15px }
+	</style>
+</head>
+
+<body>
+<div class="panel">
+
+<h1>Simulation du Virus</h1>
+
+<p>Voici le graphique de la simulation d'un virus:<p>
+
+  <h2>Paramètres du virus</h2>
+
+  <table class="parameters">
+
+  			<tr>
+  				<td>Bêta</td>
+  				<td><input id="beta" type="text" value="0.2"> </td>
+  			</tr>
+  			<tr>
+  				<td>Mu</td>
+  				<td><input id="mu" type="text" value="2"> </td>
+  			</tr>
+        <tr>
+  				<td>Nu</td>
+  				<td><input id="nu" type="text" value="4"> </td>
+  			</tr>
+        <tr>
+  				<td>Lambda</td>
+  				<td><input id="lambda" type="text" value="30"> </td>
+  			</tr>
+        <tr>
+  				<td>Time</td>
+  				<td><input id="time" type="text" value="100"> jours</td>
+  			</tr>
+      </table>
+
+      <h2>Conditions initales sur la population</h2>
+
+      <table class="parameters">
+        <tr>
+  				<td>S0</td>
+  				<td><input id="S0" type="text" value="0.97"> population saine (sur 1)</td>
+  			</tr>
+        <tr>
+  				<td>C0</td>
+  				<td><input id="C0" type="text" value="0.03"> population contaminée (sur 1)</td>
+  			</tr>
+        <tr>
+  				<td>I0</td>
+  				<td><input id="I0" type="text" value="0"> population infectée (sur 1)</td>
+  			</tr>
+        <tr>
+  				<td>R0</td>
+  				<td><input id="R0" type="text" value="0"> population rétablie (sur 1)</td>
+  			</tr>
+        <tr>
+  				<td>M0</td>
+  				<td><input id="M0" type="text" value="0"> population morte (sur 1)</td>
+  			</tr>
+      </table>
+
+        <div style="margin-top: 20px">
+  			<div class="button" id="runButton">Lancer la simulation</div>
+  		  </div>
+      </div>
+
+
+<div class="panel" id="resultPanel" style="display: none">
+  <div>Résultat de la simulation: </div>
+  <pre id="result"></pre>
+</div>
+
+
+<div class = "panel">
+<img alt="Simulation d'un virus" src="image_virus.png"></div>
+</div>
+
+
+
+<script>
+var betaInput = document.getElementById('beta');
+var muInput = document.getElementById('mu');
+var nuInput = document.getElementById('nu');
+var lambdaInput = document.getElementById('lambda');
+var timeInput = document.getElementById('time');
+var s0Input = document.getElementById('S0');
+var c0Input = document.getElementById('C0');
+var i0Input = document.getElementById('I0');
+var r0Input = document.getElementById('R0');
+var m0Input = document.getElementById('M0');
+var runButton = document.getElementById('runButton');
+var resultPanel = document.getElementById('resultPanel');
+var resultArea = document.getElementById('result');
+
+
+
+runButton.onclick = function(event) {
+		// Lire les valeurs des input boxes
+		var beta = parseFloat(betaInput.value);
+		var mu = parseFloat(muInput.value);
+    var nu = parseFloat(nuInput.value);
+    var lambda = parseFloat(lambdaInput.value);
+    var time = parseInt(timeInput.value);
+    var s0 = parseFloat(s0Input.value);
+    var c0 = parseFloat(c0Input.value);
+    var i0 = parseFloat(i0Input.value);
+    var r0 = parseFloat(r0Input.value);
+    var m0 = parseFloat(m0Input.value);
+
+		// Lancer la simulation sur le serveur
+		var request = new XMLHttpRequest();
+		request.addEventListener('load', onLoad);
+		request.responseType = 'text';
+		request.open('GET', '/home/student/http-projets/SimulationVirus/run?beta='
+                + beta + '&mu=' + mu + '&nu=' + nu +'&lambda=' + lambda
+                + '&time=' + time + '&s0=' + s0 + '&c0=' + c0 + '&i0=' + i0
+                + '&r0=' + r0 + '&m0=' + m0);
+		request.send();
+
+		function onLoad() {
+			// La simulation nous a renvoyé une erreur
+			if (request.status != 200) {
+				resultArea.textContent = 'Erreur ' + request.status + '\n\n' + request.response;
+				return
+			}
+
+			// Afficher le résultat brut
+			resultPanel.style.display = '';
+			resultArea.textContent = request.response;
+
+			// Parser le JSON
+			try {
+				var json = JSON.parse(request.response);
+			} catch (error) {
+				// Error: JSON invalide
+				resultLevel.textContent = '?';
+				console.log(error);
+				return;
+			}
+
+			// Afficher le dernier niveau
+			var last = json.resultat[json.resultat.length - 1];
+			resultLevel.textContent = last.level;
+		}
+	};
+
+
+
+</script>
+</body>
+
+
+</html>

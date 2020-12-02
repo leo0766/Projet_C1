@@ -1,9 +1,11 @@
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
 
 
-int simulationVirus(double S0, double C0, double I0, double R0, double M0, double lambda, double mu, double v, int t, double betta0) {
+void simulationVirus(double S0, double C0, double I0, double R0, double M0, double lambda, double mu, double v, int t, double betta0) {
 	
 	/*
 	initialisation des char arrays: 
@@ -43,115 +45,127 @@ int simulationVirus(double S0, double C0, double I0, double R0, double M0, doubl
 		
 		betta[i] = betta[i - 1] + dbetta[i - 1];				
 		
-		dSt[i] = -betta[i] * (It[i] + Ct[i]) * St[i];
-		dCt[i] = betta[i] *  (It[i]+Ct[i]) * St[i] - Ct[i] / v;
+		dSt[i] = -betta[i] * It[i] * St[i];
+		dCt[i] = betta[i] * It[i] * St[i] - Ct[i] / v;
 		dIt[i] = Ct[i] / v - (It[i] / lambda) - It[i] * mu;
 		dRt[i] = It[i] / lambda;
 		dMt[i] = It[i] * mu;	
 		
 		
 		if(i < 2) {
-			dbetta[i] = (Ct[i] + It[i]) * St[i]/100;
+			dbetta[i] = It[i] * St[i]/100;
 		}
 		else {
-			dbetta[i] =  ((dbetta[i - 1] - dbetta[i - 2])/(fabs(dbetta[i - 1] - dbetta[i - 2]))) * (Ct[i] + It[i]) * St[i]/100;
+			dbetta[i] =  ((dbetta[i - 1] - dbetta[i - 2])/(fabs(dbetta[i - 1] - dbetta[i - 2]))) * It[i] * St[i]/100;
 			}
 		}
 		
+		
+		FILE * data_virus;
+	  
+	   /* open the file for writing*/
+	   
+	   data_virus = fopen ("/Users/leodurst/Documents/EPFL Ba3 C/Projet_C/dataSimulVirus_c.csv","w");
+		
 		/*
-		Impression des composantes des tableaux:  
+		Impression des composantes des tableaux dans le fichier txt:  
 		*/
 		
 		
-	printf("\n");
-	printf("Sains\n");
-	printf("\n");
+		fprintf(data_virus, "Jours;Sains;Contamines;Infectes;Retablis;Morts\n");
+	for (int i = 0; i < t; i++) {
+		fprintf(data_virus, "%d;", i);
+		fprintf(data_virus, "%f;", St[i]);	
+		fprintf(data_virus, "%f;", Ct[i]);
+		fprintf(data_virus, "%f;", It[i]);
+		fprintf(data_virus, "%f;", Rt[i]);
+		fprintf(data_virus, "%f;\n", Mt[i]);
+		
+		}		
 
-	printf("%f,\n", S0);
-	for (int i = 1; i < t; i++) {
-		printf("%f,\n", St[i]);		
-		}	
-				
-		printf("\n");
-		printf("\n");
-		
-		printf("Contagieux\n");
-		printf("\n");
-		printf("%f,\n", C0);
-		
-	for (int i = 1; i < t; i++) {
+	fclose(data_virus);
 	
-		printf("%f,\n", Ct[i]);
-		}
-		
-		printf("\n");
-		printf("\n");
-		
-		printf("Infectés\n");
-		printf("\n");
-
-		printf("%f,\n", I0);
-	for (int i = 1; i < t; i++) {
-			
-		printf("%f,\n", It[i]);
-		}
-		
-		
-		printf("\n");
-		printf("\n");
-		
-		printf("Rétablis\n");
-		printf("\n");
-		printf("%f,\n", R0);	
-	for (int i = 1; i < t; i++) {		
-		printf("%f,\n", Rt[i]);
-		}
-		
-		printf("\n");
-		printf("\n");
-				
-		printf("Mort\n");
-		printf("\n");
-		printf("%f,\n", M0);		
-	for (int i = 1; i < t; i++) {
-		printf("%f,\n", Mt[i]);
-		}
-		
-		printf("\n");
-		printf("\n");
-
-	/*
-	Vérification de l'homogénéité des équations (Somme doit toujours être égale à 1 --> 100% de la population):  
-	 */
-
-	float Somme[10000];
-	for(int i = 0; i < t; i++) {
-		Somme[i] = St[i] + Ct[i] + It[i] + Rt[i] + Mt[i];
-		printf("%f\n", Somme[i]);		
-		}
-		
-		
-	return 0;
+	FILE * time_virus;
+	
+	time_virus = fopen("/Users/leodurst/Documents/EPFL Ba3 C/Projet_C/time_virus.txt","w");
+	
+	fprintf(time_virus, "%d", t);
+	
+	fclose(time_virus);
+  
 	}
+
+
+
 
 
 
 
 int main(int argc, char * argv []) {
 	
+	
+// Configuration par défaut
 double I0 = 0;
-double S0 = 0.95;
+double S0 = 0.97;
 double R0 = 0;
-double C0 = 0.05;
+double C0 = 0.03;
 double M0 = 0;
-double lambda = 30;
-double mu = 0.02;
+double lambda = 20;
+double mu = 0.01;
 double v = 5;
 int t = 100;
-double betta0 = 0.15;
+double betta = 0.15;
 
 
-simulationVirus(S0, C0, I0, R0, M0, lambda, mu, v, t, betta0);
+
+// Lire les paramètres du site web
+	char * parametres = argc > 1 ? argv[1] : NULL;
+	while (parametres != NULL) {
+		char * equal = strchr(parametres, '=');
+		if (equal == NULL) break;
+		equal[0] = 0;
+		char * ampersand = strchr(equal + 1, '&');
+		if (ampersand != NULL) ampersand[0] = 0;
+		char * key = parametres;
+		char * value = equal + 1;
+
+		if (strcmp(key, "beta") == 0) {
+			betta = atof(value);
+		} else if (strcmp(key, "mu") == 0) {
+			mu = atof(value);
+		}
+		else if (strcmp(key, "nu") == 0) {
+					v = atof(value);
+				}
+		else if (strcmp(key, "lambda") == 0) {
+					lambda = atof(value);
+				}
+		else if (strcmp(key, "time") == 0) {
+					t = atoi(value);
+				}
+		else if (strcmp(key, "s0") == 0) {
+					S0 = atof(value);
+				}
+		else if (strcmp(key, "c0") == 0) {
+					C0 = atof(value);
+				}
+		else if (strcmp(key, "i0") == 0) {
+					I0 = atof(value);
+				}
+		else if (strcmp(key, "r0") == 0) {
+					R0 = atof(value);
+				}
+		else if (strcmp(key, "m0") == 0) {
+					M0 = atof(value);
+				}
+
+		parametres = ampersand == NULL ? NULL : ampersand + 1;
+	}
+
+
+
+
+simulationVirus(S0, C0, I0, R0, M0, lambda, mu, v, t, betta);
 
 
 return 0;
