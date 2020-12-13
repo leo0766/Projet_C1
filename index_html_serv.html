@@ -5,7 +5,7 @@
   <meta charset="utf-8">
   <title>Simulation Virus</title>
   <style>
-		body { background: #eee; font-family: sans-serif; font-size: 18px; margin: 0; padding: 0 }
+		body { background: white; font-family: sans-serif; font-size: 18px; margin: 0; padding: 0 }
 		h1 { font-size: 30px }
 		table.parameters td { padding: 2px }
 		table.parameters td:first-child { font-weight: bold; padding-right: 10px }
@@ -13,7 +13,54 @@
 		div.button { background: #06c; border-radius: 4px; color: white; cursor: pointer; display: inline-block; padding: 10px 20px }
 		div.panel { background: white; box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); margin: 20px auto; max-width: 800px; padding: 20px }
 		pre#result { font-size: 15px }
-	</style>
+
+/* Popup infos */
+
+.popup {
+  position: relative;
+  display: inline-block;
+  cursor: pointer;
+}
+
+/* The actual popup */
+
+.popup .popuptext {
+  visibility: hidden;
+  width: 200px;
+  height: 10px;
+  background-color: #444;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 10px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -80px;
+}
+
+/* Popup arrow */
+
+.popup .popuptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+/* Toggle this class - hide and show the popup */
+
+.popup.show {
+  visibility: visible;
+}
+
+
+</style>
 </head>
 
 <body>
@@ -21,31 +68,53 @@
 
 <h1>Simulation du Virus</h1>
 
-<p>Voici le graphique de la simulation d'un virus:<p>
+
+<p>Accéder à la présentation des données du Covid-19: </p>
+
+
+<ul>
+<li><a href="projet">Simulation du Covid-19</a></li>
+</ul>
+
+<p>Voici le graphique de la simulation d'un virus: </p>
 
   <h2>Paramètres du virus</h2>
+
+  <div class="popup" onclick="popupFunction()">Cliquer ici pour plus d'informations
+  <span class="popuptext" id="myPopup">A Simpl</span>
+</div>
+
+<p>
+Voici les paramètres qui décrivent le comportement d'un virus. <br>
+Bêta <br>
+Mu<br>
+Nu<br>
+Lambda <br>
+Time <br>
+</p>
+
 
   <table class="parameters">
 
   			<tr>
   				<td>Bêta</td>
-  				<td><input id="beta" type="text" value="0.2"> </td>
+  				<td><input id="beta" type="text" value="0.2"> Valeurs conseillées : [0.001 - 1]</td>
   			</tr>
   			<tr>
   				<td>Mu</td>
-  				<td><input id="mu" type="text" value="2"> </td>
+  				<td><input id="mu" type="text" value="0.02"> Valeurs conseillées : [0.0001 - 0.5]</td>
   			</tr>
         <tr>
   				<td>Nu</td>
-  				<td><input id="nu" type="text" value="4"> </td>
+  				<td><input id="nu" type="text" value="4"> Valeurs conseillées : [1 - ...]</td>
   			</tr>
         <tr>
   				<td>Lambda</td>
-  				<td><input id="lambda" type="text" value="30"> </td>
+  				<td><input id="lambda" type="text" value="30"> Valeurs conseillées : [5 - ...]</td>
   			</tr>
         <tr>
   				<td>Time</td>
-  				<td><input id="time" type="text" value="100"> jours</td>
+  				<td><input id="time" type="text" value="100"> jours Valeurs conseillées : [10- 1000]</td>
   			</tr>
       </table>
 
@@ -82,17 +151,19 @@
 
 <div class="panel" id="resultPanel" style="display: none">
   <div>Résultat de la simulation: </div>
-  <pre id="result"></pre>
-</div>
-
-
-<div class = "panel">
-<img alt="Simulation d'un virus" src="image_virus.png"></div>
+  <img id = "resultimg" alt="Simulation d'un virus" src="image_virus.png">
+  <img id = "resultimg2" alt="Simulation d'un virus 2" src="image_virus_foc.png">
 </div>
 
 
 
 <script>
+
+function popupFunction() {
+  var popup = document.getElementById("myPopup");
+  popup.classList.toggle("show");
+}
+
 var betaInput = document.getElementById('beta');
 var muInput = document.getElementById('mu');
 var nuInput = document.getElementById('nu');
@@ -105,7 +176,8 @@ var r0Input = document.getElementById('R0');
 var m0Input = document.getElementById('M0');
 var runButton = document.getElementById('runButton');
 var resultPanel = document.getElementById('resultPanel');
-var resultArea = document.getElementById('result');
+var resultImage = document.getElementById('resultimg');
+var resultImage2 = document.getElementById('resultimg2');
 
 
 
@@ -122,11 +194,11 @@ runButton.onclick = function(event) {
     var r0 = parseFloat(r0Input.value);
     var m0 = parseFloat(m0Input.value);
 
-		// Lancer la simulation sur le serveur
+	// Lancer la simulation sur le serveur
 		var request = new XMLHttpRequest();
 		request.addEventListener('load', onLoad);
 		request.responseType = 'text';
-		request.open('GET', '/home/student/http-projets/SimulationVirus/run?beta='
+		request.open('GET', '/projets/SimulationVirus/run?beta='
                 + beta + '&mu=' + mu + '&nu=' + nu +'&lambda=' + lambda
                 + '&time=' + time + '&s0=' + s0 + '&c0=' + c0 + '&i0=' + i0
                 + '&r0=' + r0 + '&m0=' + m0);
@@ -138,29 +210,12 @@ runButton.onclick = function(event) {
 				resultArea.textContent = 'Erreur ' + request.status + '\n\n' + request.response;
 				return
 			}
-
-			// Afficher le résultat brut
+			// Afficher l'image
 			resultPanel.style.display = '';
-			resultArea.textContent = request.response;
-
-			// Parser le JSON
-			try {
-				var json = JSON.parse(request.response);
-			} catch (error) {
-				// Error: JSON invalide
-				resultLevel.textContent = '?';
-				console.log(error);
-				return;
+			resultimg.src = "image_virus.png";
+			resultimg2.src = "image_virus_foc.png";
 			}
-
-			// Afficher le dernier niveau
-			var last = json.resultat[json.resultat.length - 1];
-			resultLevel.textContent = last.level;
-		}
-	};
-
-
-
+		};
 </script>
 </body>
 

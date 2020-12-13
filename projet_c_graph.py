@@ -60,12 +60,13 @@ for i in range(time_virus):
 
 time = np.arange(time_virus)
 
+plt.figure(1)
 
-plt.plot(time, Sain, label="Sains")
-plt.plot(time, Contam, label="Contamniés")
-plt.plot(time, Infect, label="Infectés")
-plt.plot(time, Retab, label="Rétablis")
-plt.plot(time, Mort, label="Morts")
+plt.plot(time, Sain,'b',label="Sains", linewidth=0.7)
+plt.plot(time, Contam,'y',label="Contamniés", linewidth=0.7)
+plt.plot(time, Infect, 'g',label="Infectés", linewidth=0.7)
+plt.plot(time, Retab, 'r',label="Rétablis", linewidth=0.7)
+plt.plot(time, Mort,'m',label="Morts", linewidth=0.7)
 plt.title("Simulation virus")
 ax = plt.gca()
 plt.legend(loc = 'upper left')
@@ -75,6 +76,26 @@ plt.grid(b=True, which='Major', axis='y')
 plt.xlim(time[0], time[-1])
 
 
-plt.savefig('image_virus.png')
+plt.savefig('fig_1.png')
+
+
+
+plt.figure(2)
+plt.plot(time, Contam,'y',label="Contamniés", linewidth=0.7)
+plt.plot(time, Infect, 'g',label="Infectés", linewidth=0.7)
+plt.plot(time, Retab, 'r',label="Rétablis", linewidth=0.7)
+plt.plot(time, Mort,'m',label="Morts", linewidth=0.7)
+plt.title("Simulation virus - focus sur la population touchée")
+ax = plt.gca()
+plt.legend(loc = 'upper left')
+ax.set_ylabel("taux de la population concernée")
+ax.set_xlabel("nombre de jours")
+plt.grid(b=True, which='Major', axis='y')
+plt.xlim(time[0], time[-1])
+
+plt.savefig('fig_2.png')
+
+
+
 plt.show()
 
